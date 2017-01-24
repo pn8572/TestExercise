@@ -27,23 +27,23 @@ public class WebCrawlerUtility
 {
 	final static Logger logger = Logger.getLogger(WebCrawlerUtility.class);
 
-	public static void getURLs(String url) throws Exception
+	public static boolean getURLs(String url) throws Exception
 	{
 	    //String url = "http://wiprodigital.com";
 	    String urls[] = new String[1000];
 	    String webpage = PageUtil.getURLContent(url);
 	    
-	    int i=0,j=0,tmp=0,total=0, MAX = 1000;
-	    int start=0, end=0;
-	    end = webpage.indexOf("<body");
+	    int i=0,j=0,tmp=0,currentTotal=0, MAX = 1000;
+	    int atartIndex=0, endIndex=0;
+	    endIndex = webpage.indexOf("<body");
 	    
-	    for (i=total;i<MAX; i++, total++)
+	    for (i=currentTotal;i<MAX; i++, currentTotal++)
 	    {
-	        start = webpage.indexOf("http://", end);
-	        if(start == -1)
+	        atartIndex = webpage.indexOf("http://", endIndex);
+	        if(atartIndex == -1)
 	        {
-	            start = 0;
-	            end = 0;
+	            atartIndex = 0;
+	            endIndex = 0;
 	            try
 	            {
 	            	webpage = PageUtil.getURLContent(urls[j++]);
@@ -53,26 +53,27 @@ public class WebCrawlerUtility
 	            	logger.error("******************");
 	            	logger.error(urls[j-1]);
 	            	logger.error("Exception caught \n"+e);
+	            	return false;
 	            }
 
 	            /* logic to fetch urls out of body of web page only */
-	            end = webpage.indexOf("<body");
-	            if (end == -1)
+	            endIndex = webpage.indexOf("<body");
+	            if (endIndex == -1)
 	            {
-	               end = start = 0;
+	               endIndex = atartIndex = 0;
 	               continue;
 	            }       
 	        }
-	        end = webpage.indexOf("\"", start);
-	        tmp = webpage.indexOf("'", start);
-	        if (tmp < end && tmp != -1) 
+	        endIndex = webpage.indexOf("\"", atartIndex);
+	        tmp = webpage.indexOf("'", atartIndex);
+	        if (tmp < endIndex && tmp != -1) 
 	        {
-	            end = tmp;
+	            endIndex = tmp;
 	        }
 	        
-	        if ( start>0 && end>0 )
+	        if ( atartIndex>0 && endIndex>0 )
 	        {
-	        	url = webpage.substring(start, end);
+	        	url = webpage.substring(atartIndex, endIndex);
 	        	urls[i] = url;
 	        }
 	    } 
@@ -91,6 +92,8 @@ public class WebCrawlerUtility
 	    }
 	    
 	    logger.info("Total URLS accessed are " + finalSetofURLs.size());
+	    
+	    return true;
 	 }
 }
 
